@@ -1,0 +1,20 @@
+MED UERJ neural card narration
+
+Kokoro-82M v1.0, hexgrad, Apache-2.0.
+https://huggingface.co/hexgrad/Kokoro-82M
+https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md
+Brazilian Portuguese voice pf_dora (speaker 42).
+ONNX conversion and voice bundle distributed by k2-fsa/sherpa-onnx:
+https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models
+
+sherpa-onnx 1.12.29, Copyright Xiaomi Corporation and contributors,
+Apache-2.0. See sherpa-onnx-Apache-2.0.txt (also the license for Kokoro).
+https://github.com/k2-fsa/sherpa-onnx/tree/v1.12.29
+
+eSpeak NG phonemizer and language data, GPL-3.0-or-later.
+See espeak-ng-GPL-3.0.txt. Corresponding source:
+https://github.com/espeak-ng/espeak-ng
+https://github.com/k2-fsa/sherpa-onnx/blob/v1.12.29/cmake/espeak-ng.cmake
+
+ONNX Runtime, Copyright Microsoft Corporation, MIT.
+https://github.com/microsoft/onnxruntime

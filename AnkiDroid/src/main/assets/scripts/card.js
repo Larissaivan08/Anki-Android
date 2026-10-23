@@ -164,7 +164,7 @@ var onPageFinished = function () {
 
     var typedElement = document.getElementsByName("typed")[0];
 
-    _runHook(onUpdateHook)
+    return _runHook(onUpdateHook)
         .then(() => {
             if (window.MathJax != null) {
                 /* Anki-Android adds mathjax-needs-to-render" as a class to the card when
@@ -192,7 +192,7 @@ var onPageFinished = function () {
                 typedElement.focus();
             }
         })
-        .then(_runHook(onShownHook));
+        .then(() => _runHook(onShownHook));
 };
 
 /* Add function 2 hook to function 1.

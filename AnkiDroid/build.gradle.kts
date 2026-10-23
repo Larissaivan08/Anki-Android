@@ -84,6 +84,10 @@ val buildTimeMillis =
 android {
     namespace = "com.ichi2.anki"
 
+    androidResources {
+        noCompress += listOf("onnx", "bin")
+    }
+
     buildFeatures {
         buildConfig = true
         aidl = true
@@ -732,6 +736,7 @@ configurations.configureEach {
 }
 
 dependencies {
+    implementation(files("libs/sherpa-onnx-1.12.29.aar"))
     api(project(":api"))
     implementation(libs.androidx.work.runtime)
     lintChecks(project(":lint-rules"))
@@ -896,3 +901,22 @@ dependencies {
     // an "unresolved" warning, which is treated as an error due to allWarningsAsErrors
     testFixturesImplementation(libs.kotlinx.coroutines.core)
 }
+
+val voiceFiles =
+    listOf(
+        layout.projectDirectory.file("libs/sherpa-onnx-1.12.29.aar").asFile,
+        layout.projectDirectory.file("src/main/assets/neural/model.onnx").asFile,
+        layout.projectDirectory.file("src/main/assets/neural/voices.bin").asFile,
+        layout.projectDirectory.file("src/main/assets/neural/tokens.txt").asFile,
+        layout.projectDirectory.file("src/main/assets/neural/espeak-ng-data/phondata").asFile,
+    )
+val verifyMedUerjVoice =
+    tasks.register("verifyMedUerjVoice") {
+        inputs.files(voiceFiles)
+        doLast {
+            check(inputs.files.files.all { it.isFile && it.length() > 0 }) {
+                "Neural speech assets missing. Run powershell -File tools/setup-meduerj-voice.ps1 before building."
+            }
+        }
+    }
+tasks.named("preBuild") { dependsOn(verifyMedUerjVoice) }

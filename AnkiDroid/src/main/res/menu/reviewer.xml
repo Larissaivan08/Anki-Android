@@ -7,6 +7,12 @@
     android:layoutDirection="locale">
 
     <item
+        android:id="@+id/action_meduerj_auto_read"
+        android:checkable="true"
+        android:title="@string/meduerj_read_aloud"
+        ankidroid:showAsAction="never" />
+
+    <item
         android:id="@+id/action_undo"
         android:enabled="false"
         android:icon="@drawable/ic_undo_white"

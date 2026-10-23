@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="meduerj_read_aloud">Leitura automática dos cartões</string>
+    <string name="meduerj_read_aloud_summary">Lê os cartões com a voz neural brasileira Dora (Kokoro), sem internet ou login. Ao desligar, a fala para. A primeira leitura pode levar alguns segundos.</string>
+    <string name="meduerj_read_aloud_unavailable">Não foi possível iniciar a voz brasileira. Desative e ative a leitura para tentar novamente.</string>
+    <string name="meduerj_read_aloud_failed">Não foi possível gerar a leitura deste cartão. Desative e ative a leitura para tentar novamente.</string>
+</resources>

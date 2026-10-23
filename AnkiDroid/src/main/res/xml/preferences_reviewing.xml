@@ -15,6 +15,11 @@
     android:title="@string/pref_cat_reviewing"
     android:key="@string/pref_reviewing_screen_key"
     tools:context=".preferences.ReviewingSettingsFragment">
+    <SwitchPreferenceCompat
+        android:key="meduerjAutomaticReadAloud"
+        android:title="@string/meduerj_read_aloud"
+        android:summary="@string/meduerj_read_aloud_summary"
+        android:defaultValue="false" />
     <PreferenceCategory android:title="@string/pref_cat_scheduling" >
         <com.ichi2.preferences.SliderPreference
             android:key="@string/day_offset_preference"
