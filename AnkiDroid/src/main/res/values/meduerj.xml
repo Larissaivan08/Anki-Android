@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <resources>
+    <string name="meduerj_voice_title">Voz brasileira para ler os cartões</string>
+    <string-array name="meduerj_voice_names">
+        <item>Dora — feminina (Brasil)</item>
+        <item>Alex — masculina (Brasil)</item>
+        <item>Santa — masculina (Brasil)</item>
+    </string-array>
+    <string-array name="meduerj_voice_values">
+        <item>dora</item>
+        <item>alex</item>
+        <item>santa</item>
+    </string-array>
     <string name="meduerj_read_aloud">Leitura automática dos cartões</string>
-    <string name="meduerj_read_aloud_summary">Lê os cartões com a voz neural brasileira Dora (Kokoro), sem internet ou login. Ao desligar, a fala para. A primeira leitura pode levar alguns segundos.</string>
+    <string name="meduerj_read_aloud_summary">Lê os cartões com a voz brasileira escolhida abaixo, sem internet ou login. Ao desligar, a fala para. A primeira leitura pode levar alguns segundos.</string>
+    <string name="meduerj_test_voice">Ouvir exemplo da voz escolhida</string>
+    <string name="meduerj_preparing_voice">Preparando a voz brasileira…</string>
+    <string name="meduerj_no_visible_text">Este cartão não tem texto disponível para leitura. Texto dentro de imagens não é reconhecido.</string>
     <string name="meduerj_read_aloud_unavailable">Não foi possível iniciar a voz brasileira. Desative e ative a leitura para tentar novamente.</string>
     <string name="meduerj_read_aloud_failed">Não foi possível gerar a leitura deste cartão. Desative e ative a leitura para tentar novamente.</string>
 </resources>

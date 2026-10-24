@@ -20,6 +20,16 @@
         android:title="@string/meduerj_read_aloud"
         android:summary="@string/meduerj_read_aloud_summary"
         android:defaultValue="false" />
+    <ListPreference
+        android:key="meduerjBrazilianVoice"
+        android:title="@string/meduerj_voice_title"
+        android:entries="@array/meduerj_voice_names"
+        android:entryValues="@array/meduerj_voice_values"
+        android:defaultValue="dora"
+        app:useSimpleSummaryProvider="true" />
+    <Preference
+        android:key="meduerjTestVoice"
+        android:title="@string/meduerj_test_voice" />
     <PreferenceCategory android:title="@string/pref_cat_scheduling" >
         <com.ichi2.preferences.SliderPreference
             android:key="@string/day_offset_preference"

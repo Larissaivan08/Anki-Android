@@ -3,7 +3,9 @@ MED UERJ neural card narration
 Kokoro-82M v1.0, hexgrad, Apache-2.0.
 https://huggingface.co/hexgrad/Kokoro-82M
 https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md
-Brazilian Portuguese voice pf_dora (speaker 42).
+Brazilian Portuguese voices pf_dora, pm_alex, pm_santa.
+Original speaker IDs 42,43,44 are remapped to 0,1,2; other voice data is removed.
+Shared neural graph weights are unchanged.
 ONNX conversion and voice bundle distributed by k2-fsa/sherpa-onnx:
 https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models
 

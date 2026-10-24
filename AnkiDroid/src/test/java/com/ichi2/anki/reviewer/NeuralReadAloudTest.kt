@@ -93,6 +93,24 @@ class NeuralReadAloudTest {
     }
 
     @Test
+    fun `changing Brazilian voice restarts visible card and rejects old callbacks`() {
+        read()
+        val oldCompletion = completed
+        preferences.edit().putString("meduerjBrazilianVoice", "alex").commit()
+        oldCompletion()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(0, completions)
+        verify(exactly = 2) { voice.speak("Hipertensão arterial", any(), any()) }
+    }
+
+    @Test
+    fun `pausing releases neural model before a voice preview is opened`() {
+        read()
+        reader.pause()
+        verify(exactly = 1) { voice.reset() }
+    }
+
+    @Test
     fun `closing reviewer stops and releases neural speech`() {
         read()
         reader.close()

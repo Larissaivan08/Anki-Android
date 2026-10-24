@@ -13,6 +13,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     try {
         const page = await browser.newPage();
         const cases = [
+            ['<body class="card"><div id="content">Pergunta da tela clássica</div></body>', 'Pergunta da tela clássica'],
             ['<div id="qa">Qual a conduta? <span style="display:none">RESPOSTA SECRETA</span></div>', 'Qual a conduta?'],
             ['<div id="qa">Pergunta <span hidden>SEGREDO</span><span style="visibility:hidden">SEGREDO</span>' +
                 '<div style="opacity:0">SEGREDO</div><span aria-hidden="true">SEGREDO</span></div>', 'Pergunta'],
@@ -32,6 +33,16 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
             assert.equal(await page.evaluate(script), expected);
             assert.equal(await page.content(), before, 'Speech extraction must not alter card HTML');
         }
+        const actualTemplate = fs.readFileSync(path.join(__dirname,
+            '../AnkiDroid/src/main/assets/card_template.html'), 'utf8');
+        await page.setContent(actualTemplate
+            .replace('::content::', 'Texto do cartão clássico real')
+            .replace('::class::', 'card')
+            .replace('::style::', '')
+            .replace('::script::', '')
+            .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+            .replace(/<link\b[^>]*>/gi, ''));
+        assert.equal(await page.evaluate(script), 'Texto do cartão clássico real');
         // Exercise the existing legacy renderer's real lifecycle code with delayed MathJax.
         const legacy = fs.readFileSync(path.join(__dirname,
             '../AnkiDroid/src/main/assets/scripts/card.js'), 'utf8');

@@ -23,7 +23,6 @@ $libs = Join-Path $repoRoot 'AnkiDroid/libs'
 New-Item -ItemType Directory -Force $destination, $libs | Out-Null
 Copy-Item -LiteralPath $aar -Destination $libs -Force
 $source = Join-Path $cache 'kokoro-multi-lang-v1_0'
-foreach ($name in @('model.onnx', 'voices.bin', 'tokens.txt', 'espeak-ng-data')) {
-    Copy-Item -LiteralPath (Join-Path $source $name) -Destination $destination -Recurse -Force
-}
+python (Join-Path $PSScriptRoot 'prepare-meduerj-ptbr.py') $source $destination
+if ($LASTEXITCODE -ne 0) { throw 'Could not prepare Brazilian-only voice assets' }
 Write-Output 'Kokoro pt-BR ready. Build the APK with gradlew :AnkiDroid:assemblePlayDebug.'

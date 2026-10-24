@@ -908,6 +908,7 @@ val voiceFiles =
         layout.projectDirectory.file("src/main/assets/neural/model.onnx").asFile,
         layout.projectDirectory.file("src/main/assets/neural/voices.bin").asFile,
         layout.projectDirectory.file("src/main/assets/neural/tokens.txt").asFile,
+        layout.projectDirectory.file("src/main/assets/neural/brazilian-voices-v2.txt").asFile,
         layout.projectDirectory.file("src/main/assets/neural/espeak-ng-data/phondata").asFile,
     )
 val verifyMedUerjVoice =

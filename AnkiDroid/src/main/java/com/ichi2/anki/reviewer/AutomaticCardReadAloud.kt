@@ -41,7 +41,7 @@ class AutomaticCardReadAloud(
     private var evaluator: ((String, (String) -> Unit) -> Unit)? = null
     private val preferenceListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if (key == PREFERENCE_KEY) {
+            if (key == PREFERENCE_KEY || (key == "meduerjBrazilianVoice" && enabled)) {
                 stop()
                 if (enabled && failed) {
                     engine?.shutdown()
@@ -76,6 +76,7 @@ class AutomaticCardReadAloud(
     fun pause() {
         active = false
         stop()
+        neural?.reset()
     }
 
     fun onCardChanging() {
@@ -97,6 +98,7 @@ class AutomaticCardReadAloud(
             if (!canSpeak(request)) return@evaluate
             val text = runCatching { JSONTokener(result).nextValue() as? String }.getOrNull()?.trim().orEmpty()
             if (text.isEmpty()) {
+                onError(R.string.meduerj_no_visible_text)
                 onCompleted()
                 return@evaluate
             }

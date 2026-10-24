@@ -1,6 +1,6 @@
 // Read only the rendered card. Never inspect note fields, templates or stored answer HTML.
 (() => {
-    const card = document.getElementById("qa");
+    const card = document.getElementById("qa") || document.getElementById("content");
     if (!card) return "";
     const excluded =
         "script,style,noscript,button,input,textarea,select,audio,video,svg,[hidden],[aria-hidden='true']";
