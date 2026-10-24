@@ -59,15 +59,6 @@ class ReviewerMenuView : LinearLayout {
 
     fun findItem(id: Int): MenuItemImpl? = (frontMenu.findItem(id) ?: overflowMenu.findItem(id)) as? MenuItemImpl
 
-    fun setAutomaticReadAloudChecked(enabled: Boolean) {
-        visibility = VISIBLE
-        val item =
-            findItem(R.id.action_meduerj_auto_read)
-                ?: overflowMenu.add(Menu.NONE, R.id.action_meduerj_auto_read, Menu.NONE, R.string.meduerj_read_aloud)
-        item.isCheckable = true
-        item.isChecked = enabled
-    }
-
     fun setOnMenuItemClickListener(listener: ActionMenuView.OnMenuItemClickListener) {
         binding.frontMenuView.setOnMenuItemClickListener(listener)
         binding.overflowMenuView.setOnMenuItemClickListener(listener)

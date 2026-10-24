@@ -3,12 +3,7 @@
 package com.ichi2.anki.preferences
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
-import android.widget.Toast
 import androidx.annotation.VisibleForTesting
-import androidx.preference.ListPreference
-import androidx.preference.Preference
 import anki.config.copy
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
@@ -16,8 +11,6 @@ import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.observability.undoableOp
-import com.ichi2.anki.reviewer.CardSpeech
-import com.ichi2.anki.reviewer.EdgeCardSpeech
 import com.ichi2.anki.services.BootService.Companion.scheduleNotification
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.CollectionPreferences
@@ -29,43 +22,12 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 class ReviewingSettingsFragment : SettingsFragment() {
-    private var previewVoice: CardSpeech? = null
-
-    override fun onStop() {
-        previewVoice?.reset()
-        super.onStop()
-    }
-
-    override fun onDestroy() {
-        previewVoice?.close()
-        previewVoice = null
-        super.onDestroy()
-    }
-
     override val preferenceResource: Int
         get() = R.xml.preferences_reviewing
     override val analyticsScreenNameConstant: String
         get() = "prefs.reviewing"
 
     override fun initSubscreen() {
-        findPreference<ListPreference>("meduerjBrazilianVoice")?.apply {
-            if (value != "francisca" && value != "thalita") value = "francisca"
-        }
-        findPreference<Preference>("meduerjTestVoice")?.setOnPreferenceClickListener {
-            val app = requireContext().applicationContext
-            val speech = previewVoice ?: EdgeCardSpeech(app).also { previewVoice = it }
-            Toast.makeText(app, R.string.meduerj_preparing_voice, Toast.LENGTH_SHORT).show()
-            speech.speak(
-                "Olá! Esta é a voz brasileira escolhida para ler seus cartões. Bons estudos!",
-                onDone = {},
-                onError = {
-                    Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(app, R.string.meduerj_read_aloud_failed, Toast.LENGTH_LONG).show()
-                    }
-                },
-            )
-            true
-        }
         // Learn ahead limit
         // Represents the collections pref "collapseTime": i.e.
         // if there are no card to review now, but there are learning cards remaining for today, we show those learning cards if they are due before LEARN_CUTOFF minutes

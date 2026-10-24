@@ -503,12 +503,6 @@ abstract class AbstractFlashcardViewer :
         // intentionally blank
     }
 
-    protected open fun onReadAloudCardReady(version: Long) = Unit
-
-    protected open fun beforeManualMediaPlayback() = Unit
-
-    protected open fun pageFinishedJavascript(): String = "onPageFinished();"
-
     /** Called after an undo or undoable operation takes place. * Should set currentCard to the current card to display. */
     open suspend fun updateCurrentCard() {
         // Legacy tests assume the current card will be grabbed from the collection,
@@ -2474,12 +2468,7 @@ abstract class AbstractFlashcardViewer :
         // We play sounds through these links when a user taps the sound icon.
         @NeedsTest("integration test with typechangetext")
         fun filterUrl(url: String): Boolean {
-            if (url.startsWith("meduerj-card-ready:")) {
-                url.substringAfter(':').toLongOrNull()?.let { onReadAloudCardReady(it) }
-                return true
-            }
             if (url.startsWith("playsound:")) {
-                beforeManualMediaPlayback()
                 launchCatchingTask {
                     controlMedia(url)
                 }
@@ -2689,7 +2678,7 @@ abstract class AbstractFlashcardViewer :
             Timber.d("Java onPageFinished triggered: %s", url)
             // onPageFinished will be called multiple times if the WebView redirects by setting window.location.href
             onPageFinishedCallback?.onPageFinished(view)
-            view.loadUrl("javascript:${pageFinishedJavascript()}")
+            view.loadUrl("javascript:onPageFinished();")
             // focus keyboard automatically only when if it has inputTag and focus set to true
             val autoFocus = typeAnswer!!.useInputTag && typeAnswer!!.autoFocus
             if (autoFocus) {

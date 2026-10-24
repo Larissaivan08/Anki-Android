@@ -113,7 +113,6 @@ import com.ichi2.anki.reviewer.AnswerButtons.Companion.getBackgroundColors
 import com.ichi2.anki.reviewer.AnswerButtons.Companion.getTextColors
 import com.ichi2.anki.reviewer.AnswerTimer
 import com.ichi2.anki.reviewer.AutomaticAnswerAction
-import com.ichi2.anki.reviewer.AutomaticCardReadAloud
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.BindingMap
 import com.ichi2.anki.reviewer.BindingProcessor
@@ -166,16 +165,6 @@ open class Reviewer :
     ReviewerUi,
     BindingProcessor<ReviewerBinding, ViewerCommand> {
     private var queueState: CurrentQueueState? = null
-    private var readAloudRenderVersion = 0L
-    private var manuallyReplayingMedia = false
-    private val automaticReadAloud by lazy {
-        AutomaticCardReadAloud(
-            this,
-            AnkiDroidApp.sharedPrefs(),
-            onError = { showSnackbar(getString(it)) },
-            onCompleted = { if (currentCard != null) super.onMediaGroupCompleted() },
-        )
-    }
     private val customSchedulingKey = TimeManager.time.intTimeMS().toString()
     private var hasDrawerSwipeConflicts = false
     private var showWhiteboard = true
@@ -281,7 +270,6 @@ open class Reviewer :
     }
 
     override fun onPause() {
-        automaticReadAloud.pause()
         answerTimer.pause()
         super.onPause()
     }
@@ -292,7 +280,6 @@ open class Reviewer :
             else -> launchCatchingTask { answerTimer.resume() }
         }
         super.onResume()
-        automaticReadAloud.resume()
         if (typeAnswer?.autoFocusEditText() == true) {
             answerField?.focusWithKeyboard()
         }
@@ -301,31 +288,6 @@ open class Reviewer :
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         previousCardId?.let { outState.putLong(STATE_PREVIOUS_CARD_ID, it) }
-    }
-
-    override fun onDestroy() {
-        automaticReadAloud.close()
-        super.onDestroy()
-    }
-
-    override fun playMedia(doMediaReplay: Boolean) {
-        if (automaticReadAloud.enabled && !doMediaReplay) return
-        if (doMediaReplay) {
-            manuallyReplayingMedia = true
-            automaticReadAloud.stop()
-        }
-        super.playMedia(doMediaReplay)
-    }
-
-    override fun onMediaGroupCompleted() {
-        if (!automaticReadAloud.enabled || manuallyReplayingMedia) {
-            manuallyReplayingMedia = false
-            super.onMediaGroupCompleted()
-        }
-    }
-
-    override fun beforeManualMediaPlayback() {
-        automaticReadAloud.stop()
     }
 
     protected val flagToDisplay: Flag
@@ -811,15 +773,6 @@ open class Reviewer :
         }
 
         when (item.itemId) {
-            R.id.action_meduerj_auto_read -> {
-                automaticReadAloud.setEnabled(!automaticReadAloud.enabled)
-                item.isChecked = automaticReadAloud.enabled
-                if (automaticReadAloud.enabled) {
-                    manuallyReplayingMedia = false
-                    ReadText.stopTts()
-                    launchCatchingTask { cardMediaPlayer.stop() }
-                }
-            }
             android.R.id.home -> {
                 Timber.i("Reviewer:: Home button pressed")
                 closeReviewer(RESULT_OK)
@@ -1223,7 +1176,6 @@ open class Reviewer :
         Timber.d("onCreateOptionsMenu()")
         // NOTE: This is called every time a new question is shown via invalidate options menu
         menuInflater.inflate(R.menu.reviewer, menu)
-        menu.findItem(R.id.action_meduerj_auto_read).isChecked = automaticReadAloud.enabled
         menu.findItem(R.id.action_flag).subMenu?.let { subMenu -> setupFlags(subMenu) }
         displayIcons(menu)
         actionButtons.setCustomButtonsStatus(menu)
@@ -1625,8 +1577,6 @@ open class Reviewer :
      * @param rating The user's rating for the card
      */
     override suspend fun answerCardInner(rating: Rating) {
-        readAloudRenderVersion++
-        automaticReadAloud.onCardChanging()
         val state = queueState!!
         val cardId = currentCard!!.id
         Timber.d("answerCardInner: $cardId $rating")
@@ -1682,9 +1632,6 @@ open class Reviewer :
     }
 
     override fun displayCardQuestion() {
-        manuallyReplayingMedia = false
-        readAloudRenderVersion++
-        automaticReadAloud.onCardChanging()
         statesMutated = false
         // show timer, if activated in the deck's preferences
         answerTimer.setupForCard(getColUnsafe, currentCard!!)
@@ -1694,9 +1641,6 @@ open class Reviewer :
 
     @VisibleForTesting
     override fun displayCardAnswer() {
-        manuallyReplayingMedia = false
-        readAloudRenderVersion++
-        automaticReadAloud.onCardChanging()
         if (queueState?.customSchedulingJs?.isEmpty() == true) {
             statesMutated = true
         }
@@ -1711,16 +1655,6 @@ open class Reviewer :
         }
         super.displayCardAnswer()
     }
-
-    override fun onReadAloudCardReady(version: Long) {
-        if (version != readAloudRenderVersion) return
-        webView?.let { view ->
-            automaticReadAloud.onCardRendered { script, callback -> view.evaluateJavascript(script, callback) }
-        }
-    }
-
-    override fun pageFinishedJavascript(): String =
-        "Promise.resolve(onPageFinished()).then(() => { window.location.href = 'meduerj-card-ready:$readAloudRenderVersion'; });"
 
     private fun runStateMutationHook() {
         val state = queueState ?: return

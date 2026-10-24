@@ -59,7 +59,6 @@ import com.ichi2.anki.previewer.CardViewerFragment
 import com.ichi2.anki.previewer.TypeAnswer
 import com.ichi2.anki.previewer.setFrameStyle
 import com.ichi2.anki.previewer.stdHtml
-import com.ichi2.anki.reviewer.AutomaticCardReadAloud
 import com.ichi2.anki.reviewer.BindingMap
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.scheduling.ForgetCardsDialog
@@ -108,8 +107,6 @@ class ReviewerFragment :
     TagsDialogListener,
     ShakeDetector.Listener {
     override val viewModel: ReviewerViewModel by viewModels()
-    private var automaticReadAloud: AutomaticCardReadAloud? = null
-    private var readAloudRenderVersion = 0L
 
     @VisibleForTesting
     internal val binding by viewBinding(FragmentReviewerBinding::bind)
@@ -162,13 +159,6 @@ class ReviewerFragment :
         view: View,
         savedInstanceState: Bundle?,
     ) {
-        automaticReadAloud =
-            AutomaticCardReadAloud(
-                requireContext(),
-                sharedPrefs(),
-                onError = { showSnackbar(it) },
-                onCompleted = { viewModel.onAutomaticReadAloudCompleted() },
-            )
         super.onViewCreated(view, savedInstanceState)
 
         binding.backButton.setOnClickListener {
@@ -190,12 +180,7 @@ class ReviewerFragment :
         setupWhiteboard()
         setupTimebox()
 
-        viewModel.manualMediaPlayback.collectIn(viewLifecycleOwner.lifecycleScope) {
-            automaticReadAloud?.stop()
-        }
-
         viewModel.finishResultFlow.collectIn(lifecycleScope) { result ->
-            automaticReadAloud?.onCardChanging()
             requireActivity().run {
                 setResult(result)
                 finish()
@@ -377,14 +362,6 @@ class ReviewerFragment :
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
         Timber.v("ReviewerFragment::onMenuItemClick %s", item)
-        if (item.itemId == R.id.action_meduerj_auto_read) {
-            automaticReadAloud?.let { reader ->
-                reader.setEnabled(!reader.enabled)
-                item.isChecked = reader.enabled
-                if (reader.enabled) viewModel.stopMediaForReadAloud()
-            }
-            return true
-        }
         if (item.hasSubMenu()) return false
         val action = ViewerAction.fromId(item.itemId)
         viewModel.executeAction(action)
@@ -424,10 +401,7 @@ class ReviewerFragment :
         }
 
         binding.answerArea.setButtonListeners(
-            onRatingClicked = {
-                automaticReadAloud?.onCardChanging()
-                viewModel.answerCard(it)
-            },
+            onRatingClicked = { viewModel.answerCard(it) },
             onShowAnswerClicked = { viewModel.onShowAnswer() },
         )
 
@@ -470,37 +444,7 @@ class ReviewerFragment :
         binding.reviewerMenuView.apply {
             setup(lifecycle, viewModel)
             setOnMenuItemClickListener(this@ReviewerFragment)
-            setAutomaticReadAloudChecked(automaticReadAloud?.enabled == true)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        automaticReadAloud?.resume()
-        binding.reviewerMenuView.setAutomaticReadAloudChecked(automaticReadAloud?.enabled == true)
-    }
-
-    override fun onPause() {
-        automaticReadAloud?.pause()
-        super.onPause()
-    }
-
-    override fun onDestroyView() {
-        automaticReadAloud?.close()
-        automaticReadAloud = null
-        super.onDestroyView()
-    }
-
-    override fun onCardContentChanging() {
-        readAloudRenderVersion++
-        automaticReadAloud?.onCardChanging()
-    }
-
-    override fun onCardContentRendered() {
-        // _showQuestion/_showAnswer enqueue async rendering. Queue this after them, not after eval.
-        webViewLayout.evaluateJavascript(
-            "_queueAction(() => { window.location.href = 'ankidroid://read-aloud-ready/$readAloudRenderVersion'; });",
-        )
     }
 
     private fun setupImmersiveMode() {
@@ -782,10 +726,6 @@ class ReviewerFragment :
             url: Uri,
         ): Boolean {
             return when (url.scheme) {
-                "playsound" -> {
-                    automaticReadAloud?.stop()
-                    super.handleUrl(webView, url)
-                }
                 "gesture" -> {
                     if (isScrolling) return true
                     gestureParser.parse(url, scale, webView) { gesture ->
@@ -802,13 +742,6 @@ class ReviewerFragment :
                 "ankidroid" -> {
                     when (url.host) {
                         "show-answer" -> viewModel.onShowAnswer()
-                        "read-aloud-ready" -> {
-                            if (url.lastPathSegment?.toLongOrNull() == readAloudRenderVersion) {
-                                automaticReadAloud?.onCardRendered { script, callback ->
-                                    webViewLayout.evaluateJavascript(script, callback)
-                                }
-                            }
-                        }
                     }
                     true
                 }

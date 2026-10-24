@@ -84,10 +84,6 @@ val buildTimeMillis =
 android {
     namespace = "com.ichi2.anki"
 
-    androidResources {
-        ignoreAssetsPatterns.add("neural")
-    }
-
     buildFeatures {
         buildConfig = true
         aidl = true

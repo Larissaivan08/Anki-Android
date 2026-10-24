@@ -9,7 +9,6 @@ import anki.frontend.SetSchedulingStatesRequest
 import anki.scheduler.CardAnswer.Rating
 import com.ichi2.anki.AbstractFlashcardViewer
 import com.ichi2.anki.AbstractFlashcardViewer.Companion.RESULT_NO_MORE_CARDS
-import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.Flag
@@ -42,7 +41,6 @@ import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.previewer.CardViewerViewModel
 import com.ichi2.anki.previewer.TypeAnswer
 import com.ichi2.anki.previewer.typeAnsRe
-import com.ichi2.anki.reviewer.AutomaticCardReadAloud
 import com.ichi2.anki.reviewer.BindingProcessor
 import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.anki.reviewer.ReviewerBinding
@@ -121,8 +119,6 @@ class ReviewerViewModel(
     private var typedAnswer = ""
 
     private val autoAdvance = AutoAdvance(viewModelScope, this, currentCard)
-    private var manuallyReplayingMedia = false
-    val manualMediaPlayback = MutableSharedFlow<Unit>()
     private val isHtmlTypeAnswerEnabled = repository.isHtmlTypeAnswerEnabled
     val answerTimer = AnswerTimer()
     private val actionsMutex = Mutex()
@@ -155,10 +151,6 @@ class ReviewerViewModel(
             updateNextTimes()
         }
         cardMediaPlayer.setOnMediaGroupCompletedListener {
-            if (AutomaticCardReadAloud.isEnabled(AnkiDroidApp.sharedPrefs()) && !manuallyReplayingMedia) {
-                return@setOnMediaGroupCompletedListener
-            }
-            manuallyReplayingMedia = false
             if (!autoAdvance.shouldWaitForAudio()) return@setOnMediaGroupCompletedListener
 
             if (showingAnswer.value) {
@@ -571,24 +563,9 @@ class ReviewerViewModel(
     }
 
     private suspend fun loadAndPlayMedia(side: CardSide) {
-        manuallyReplayingMedia = false
         Timber.v("ReviewerViewModel::loadAndPlaySounds")
         cardMediaPlayer.loadCardAvTags(currentCard.await())
-        if (!AutomaticCardReadAloud.isEnabled(AnkiDroidApp.sharedPrefs())) {
-            cardMediaPlayer.autoplayAllForSide(side)
-        }
-    }
-
-    fun stopMediaForReadAloud() {
-        manuallyReplayingMedia = false
-        launchCatchingIO { cardMediaPlayer.stop() }
-    }
-
-    fun onAutomaticReadAloudCompleted() {
-        launchCatchingIO {
-            if (!autoAdvance.shouldWaitForAudio()) return@launchCatchingIO
-            if (showingAnswer.value) autoAdvance.onShowAnswer() else autoAdvance.onShowQuestion()
-        }
+        cardMediaPlayer.autoplayAllForSide(side)
     }
 
     private suspend fun updateMarkIcon() {
@@ -724,8 +701,6 @@ class ReviewerViewModel(
     }
 
     private suspend fun replayMedia() {
-        manualMediaPlayback.emit(Unit)
-        manuallyReplayingMedia = true
         val side = if (showingAnswer.value) SingleCardSide.BACK else SingleCardSide.FRONT
         cardMediaPlayer.replayAll(side)
     }

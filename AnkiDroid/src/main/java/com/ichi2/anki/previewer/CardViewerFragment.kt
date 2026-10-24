@@ -151,17 +151,9 @@ abstract class CardViewerFragment(
         setupWebView(savedInstanceState)
         setupErrorListeners()
         viewModel.eval.collectIn(lifecycleScope) { eval ->
-            val updatesCard = eval.startsWith("_showQuestion(") || eval.startsWith("_showAnswer(")
-            if (updatesCard) onCardContentChanging()
-            webViewLayout.evaluateJavascript(eval) {
-                if (updatesCard) onCardContentRendered()
-            }
+            webViewLayout.evaluateJavascript(eval)
         }
     }
-
-    protected open fun onCardContentChanging() = Unit
-
-    protected open fun onCardContentRendered() = Unit
 
     override fun onStart() {
         super.onStart()
