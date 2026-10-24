@@ -118,6 +118,7 @@ import com.ichi2.anki.reviewer.BindingMap
 import com.ichi2.anki.reviewer.BindingProcessor
 import com.ichi2.anki.reviewer.CardMarker
 import com.ichi2.anki.reviewer.CardSide
+import com.ichi2.anki.reviewer.ChatGptPanel
 import com.ichi2.anki.reviewer.FullScreenMode
 import com.ichi2.anki.reviewer.FullScreenMode.Companion.isFullScreenReview
 import com.ichi2.anki.reviewer.ReviewerBinding
@@ -773,6 +774,7 @@ open class Reviewer :
         }
 
         when (item.itemId) {
+            R.id.action_uerj_chatgpt -> ChatGptPanel.open(this)
             android.R.id.home -> {
                 Timber.i("Reviewer:: Home button pressed")
                 closeReviewer(RESULT_OK)

@@ -72,3 +72,9 @@ hs_err_pid*
 
 # Claude Code related
 /.claude/worktrees/
+
+# Old local speech experiments and validation logs; not application source.
+AnkiDroid/src/main/assets/neural/
+AnkiDroid/libs/sherpa-onnx-*.aar
+meduerj-*.log
+uerj-*.log

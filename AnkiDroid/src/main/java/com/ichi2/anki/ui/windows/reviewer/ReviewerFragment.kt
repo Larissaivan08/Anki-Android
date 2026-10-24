@@ -60,6 +60,7 @@ import com.ichi2.anki.previewer.TypeAnswer
 import com.ichi2.anki.previewer.setFrameStyle
 import com.ichi2.anki.previewer.stdHtml
 import com.ichi2.anki.reviewer.BindingMap
+import com.ichi2.anki.reviewer.ChatGptPanel
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.scheduling.ForgetCardsDialog
 import com.ichi2.anki.scheduling.SetDueDateDialog
@@ -362,6 +363,10 @@ class ReviewerFragment :
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
         Timber.v("ReviewerFragment::onMenuItemClick %s", item)
+        if (item.itemId == R.id.action_uerj_chatgpt) {
+            ChatGptPanel.open(requireActivity())
+            return true
+        }
         if (item.hasSubMenu()) return false
         val action = ViewerAction.fromId(item.itemId)
         viewModel.executeAction(action)
@@ -442,6 +447,7 @@ class ReviewerFragment :
 
     private fun setupMenu() {
         binding.reviewerMenuView.apply {
+            addChatGptPanelAction()
             setup(lifecycle, viewModel)
             setOnMenuItemClickListener(this@ReviewerFragment)
         }

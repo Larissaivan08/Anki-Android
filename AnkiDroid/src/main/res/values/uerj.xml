@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <string name="uerj_chatgpt_menu">ChatGPT — minha conta</string>
+    <string name="uerj_chatgpt_browser_unavailable">Não foi possível abrir o painel do ChatGPT. Confira se um navegador compatível, como Chrome, está instalado e atualizado.</string>
+</resources>

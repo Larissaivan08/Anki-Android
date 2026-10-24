@@ -59,6 +59,15 @@ class ReviewerMenuView : LinearLayout {
 
     fun findItem(id: Int): MenuItemImpl? = (frontMenu.findItem(id) ?: overflowMenu.findItem(id)) as? MenuItemImpl
 
+    fun addChatGptPanelAction() {
+        visibility = VISIBLE
+        if (findItem(R.id.action_uerj_chatgpt) == null) {
+            overflowMenu
+                .add(Menu.NONE, R.id.action_uerj_chatgpt, Menu.NONE, R.string.uerj_chatgpt_menu)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        }
+    }
+
     fun setOnMenuItemClickListener(listener: ActionMenuView.OnMenuItemClickListener) {
         binding.frontMenuView.setOnMenuItemClickListener(listener)
         binding.overflowMenuView.setOnMenuItemClickListener(listener)

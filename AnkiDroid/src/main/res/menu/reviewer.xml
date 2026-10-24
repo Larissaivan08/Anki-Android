@@ -7,6 +7,11 @@
     android:layoutDirection="locale">
 
     <item
+        android:id="@+id/action_uerj_chatgpt"
+        android:title="@string/uerj_chatgpt_menu"
+        ankidroid:showAsAction="never" />
+
+    <item
         android:id="@+id/action_undo"
         android:enabled="false"
         android:icon="@drawable/ic_undo_white"
