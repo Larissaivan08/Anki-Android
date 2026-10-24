@@ -96,7 +96,7 @@ class NeuralReadAloudTest {
     fun `changing Brazilian voice restarts visible card and rejects old callbacks`() {
         read()
         val oldCompletion = completed
-        preferences.edit().putString("meduerjBrazilianVoice", "alex").commit()
+        preferences.edit().putString("meduerjBrazilianVoice", "thalita").commit()
         oldCompletion()
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals(0, completions)

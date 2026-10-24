@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.annotation.VisibleForTesting
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import anki.config.copy
 import com.ichi2.anki.CollectionManager.withCol
@@ -16,7 +17,7 @@ import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.reviewer.CardSpeech
-import com.ichi2.anki.reviewer.NeuralCardSpeech
+import com.ichi2.anki.reviewer.EdgeCardSpeech
 import com.ichi2.anki.services.BootService.Companion.scheduleNotification
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.CollectionPreferences
@@ -47,9 +48,12 @@ class ReviewingSettingsFragment : SettingsFragment() {
         get() = "prefs.reviewing"
 
     override fun initSubscreen() {
+        findPreference<ListPreference>("meduerjBrazilianVoice")?.apply {
+            if (value != "francisca" && value != "thalita") value = "francisca"
+        }
         findPreference<Preference>("meduerjTestVoice")?.setOnPreferenceClickListener {
             val app = requireContext().applicationContext
-            val speech = previewVoice ?: NeuralCardSpeech(app).also { previewVoice = it }
+            val speech = previewVoice ?: EdgeCardSpeech(app).also { previewVoice = it }
             Toast.makeText(app, R.string.meduerj_preparing_voice, Toast.LENGTH_SHORT).show()
             speech.speak(
                 "Olá! Esta é a voz brasileira escolhida para ler seus cartões. Bons estudos!",

@@ -25,7 +25,7 @@
         android:title="@string/meduerj_voice_title"
         android:entries="@array/meduerj_voice_names"
         android:entryValues="@array/meduerj_voice_values"
-        android:defaultValue="dora"
+        android:defaultValue="francisca"
         app:useSimpleSummaryProvider="true" />
     <Preference
         android:key="meduerjTestVoice"

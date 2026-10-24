@@ -73,7 +73,7 @@ hs_err_pid*
 # Claude Code related
 /.claude/worktrees/
 
-# Downloaded neural speech assets; restored with tools/setup-meduerj-voice.ps1.
+# Legacy local speech experiments; excluded from the online-reader APK.
 AnkiDroid/src/main/assets/neural/
 AnkiDroid/libs/sherpa-onnx-*.aar
 meduerj-*.log

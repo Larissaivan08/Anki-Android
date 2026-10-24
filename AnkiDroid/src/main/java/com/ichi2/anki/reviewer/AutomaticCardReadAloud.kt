@@ -20,9 +20,9 @@ class AutomaticCardReadAloud(
     private val onError: (Int) -> Unit,
     private val onCompleted: () -> Unit = {},
     private val ttsFactory: ((TextToSpeech.OnInitListener) -> TextToSpeech)? = null,
-    speechFactory: (Context) -> CardSpeech = { NeuralCardSpeech(it) },
+    speechFactory: (Context) -> CardSpeech = { EdgeCardSpeech(it) },
 ) : AutoCloseable {
-    private val neural = if (ttsFactory == null) speechFactory(context.applicationContext) else null
+    private val speechEngine = if (ttsFactory == null) speechFactory(context.applicationContext) else null
     private val handler = Handler(Looper.getMainLooper())
     private val script by lazy {
         context.assets
@@ -46,13 +46,15 @@ class AutomaticCardReadAloud(
                 if (enabled && failed) {
                     engine?.shutdown()
                     engine = null
-                    neural?.reset()
+                    speechEngine?.reset()
                     failed = false
                 }
                 if (enabled) {
+                    speechEngine?.warmUp()
                     readCurrentCard()
-                } else if (active) {
-                    onCompleted()
+                } else {
+                    speechEngine?.reset()
+                    if (active) onCompleted()
                 }
             }
         }
@@ -70,13 +72,14 @@ class AutomaticCardReadAloud(
     fun resume() {
         if (closed) return
         active = true
+        if (enabled) speechEngine?.warmUp()
         readCurrentCard()
     }
 
     fun pause() {
         active = false
         stop()
-        neural?.reset()
+        speechEngine?.reset()
     }
 
     fun onCardChanging() {
@@ -114,7 +117,7 @@ class AutomaticCardReadAloud(
             onCompleted()
             return
         }
-        if (neural != null) {
+        if (speechEngine != null) {
             ready = true
             speakPending()
             return
@@ -164,9 +167,9 @@ class AutomaticCardReadAloud(
         val text = pendingText ?: return
         pendingText = null
         if (!canSpeak(generation)) return
-        if (neural != null) {
+        if (speechEngine != null) {
             val request = generation
-            neural.speak(text, onDone = {
+            speechEngine.speak(text, onDone = {
                 handler.post { if (canSpeak(request)) onCompleted() }
             }, onError = {
                 handler.post { if (canSpeak(request)) fail(R.string.meduerj_read_aloud_failed) }
@@ -187,7 +190,7 @@ class AutomaticCardReadAloud(
 
     private fun fail(message: Int) {
         stop()
-        failed = true
+        failed = speechEngine == null
         ready = false
         if (active && enabled) {
             onError(message)
@@ -200,7 +203,7 @@ class AutomaticCardReadAloud(
         pendingText = null
         finalUtterance = null
         engine?.stop()
-        neural?.stop()
+        speechEngine?.stop()
     }
 
     override fun close() {
@@ -212,7 +215,7 @@ class AutomaticCardReadAloud(
         stop()
         engine?.shutdown()
         engine = null
-        neural?.close()
+        speechEngine?.close()
     }
 
     companion object {

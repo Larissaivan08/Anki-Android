@@ -84,11 +84,6 @@ jobs:
         # queries: security-extended,security-and-quality
 
     # AnkiDroid requires JDK21+ to build, current runners default to 17
-    - name: Prepare MED UERJ neural voice
-      if: matrix.language == 'java-kotlin'
-      shell: pwsh
-      run: ./tools/setup-meduerj-voice.ps1
-
     - name: Configure JDK
       if: matrix.language == 'java-kotlin'
       uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
